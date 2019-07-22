@@ -1,12 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const usersController = require('../controllers/users');
 
-router.get('/', (req, res) => {
-  res.status(200).send({
-    nomadic: {
-      status: 'Sukses fetch Data'
-    }
-  });
-});
+router.post('/register', usersController.createUsers);
+router.post('/login', usersController.login);
 
 module.exports = router;
