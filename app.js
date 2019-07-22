@@ -7,6 +7,7 @@ const cors = require('cors');
 // Routes
 const usersRouter = require('./routes/users');
 const packagesRouter = require('./routes/packages');
+const forgotPasswordRouter = require('./routes/forgotPassword')
 
 const app = express();
 
@@ -19,5 +20,6 @@ app.use(logger('dev'));
 // Routing
 app.use('/users', usersRouter);
 app.use('/packages', packagesRouter);
+app.use('/reset_password', forgotPasswordRouter);
 
 app.listen(process.env.PORT || 3000);
