@@ -78,12 +78,12 @@ exports.createUsers = (req, res) => {
   }
 };
 
-exports.login = function(req, res) {
+exports.login = (req, res) => {
   const email = req.body.email || '';
   const password = req.body.password || '0';
   let encrypted = encrypt(password);
   const query = `SELECT * FROM users WHERE email='${email}' AND password='${encrypted}'`;
-  connection.query(query, function(error, rows, field) {
+  connection.query(query, (error, rows, field) => {
     if (error) {
       return response.loginFailed(res);
     } else {
@@ -98,3 +98,4 @@ exports.login = function(req, res) {
     }
   });
 };
+//  Packages 
