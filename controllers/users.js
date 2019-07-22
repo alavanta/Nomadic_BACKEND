@@ -23,7 +23,7 @@ function decrypt(text) {
   return dec;
 }
 
-exports.createUsers = function(req, res) {
+exports.createUsers = (req, res) => {
   const { name, email, phone, address, gender } = req.body;
   const password = encrypt(req.body.password);
 
@@ -38,7 +38,7 @@ exports.createUsers = function(req, res) {
   } else {
     connection.query(
       `SELECT * from users where email=\'${email}\' LIMIT 1`,
-      function(error, rowss, field) {
+      (error, rowss, field) => {
         if (error) {
           console.log(error);
         } else {
@@ -51,13 +51,13 @@ exports.createUsers = function(req, res) {
               //insert
               `Insert into users set name=?, password=?, email=?, phone=?, gender=?, address=?`,
               [name, password, email, address, phone, gender],
-              function(error, rowsss, field) {
+              (error, rowsss, field) => {
                 if (error) {
                   console.log(error);
                 } else {
                   connection.query(
                     `SELECT *  FROM users ORDER BY id DESC LIMIT 1`,
-                    function(error, rowssss, field) {
+                    (error, rowssss, field) => {
                       if (error) {
                         console.log(error);
                       } else {
@@ -78,12 +78,12 @@ exports.createUsers = function(req, res) {
   }
 };
 
-exports.login = function(req, res) {
+exports.login = (req, res) => {
   const email = req.body.email || '';
   const password = req.body.password || '0';
   let encrypted = encrypt(password);
   const query = `SELECT * FROM users WHERE email='${email}' AND password='${encrypted}'`;
-  connection.query(query, function(error, rows, field) {
+  connection.query(query, (error, rows, field) => {
     if (error) {
       return response.loginFailed(res);
     } else {
@@ -98,3 +98,4 @@ exports.login = function(req, res) {
     }
   });
 };
+//  Packages 
