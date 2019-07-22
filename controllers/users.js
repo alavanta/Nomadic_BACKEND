@@ -85,26 +85,15 @@ exports.login = function(req, res) {
   const query = `SELECT * FROM users WHERE email='${email}' AND password='${encrypted}'`;
   connection.query(query, function(error, rows, field) {
     if (error) {
-      return res.send({
-        status: 403,
-        message: 'forbidden'
-      });
+      return response.loginFailed(res);
     } else {
       if (rows != '') {
         const token = jwt.sign({ rows }, process.env.JWT_KEY, {
-          expiresIn: '1h'
+          expiresIn: '24h'
         });
-
-        return res.send({
-          status: 200,
-          data: rows,
-          token: token
-        });
+        return response.loginSuccess(res, rows, token);
       } else {
-        return res.send({
-          status: 403,
-          message: 'Incorrect username or password'
-        });
+        return response.loginFailed(res);
       }
     }
   });
