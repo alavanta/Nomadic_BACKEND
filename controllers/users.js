@@ -5,8 +5,8 @@ const response = require('../responses/response');
 const connection = require('../config/connect');
 
 const crypto = require('crypto');
-const algorithm = process.env.ENC_ALGORITHM;
-const password = process.env.ENC_PASS;
+const algorithm = process.env.ENC_ALGORITHM || 'aes256';
+const password = process.env.ENC_PASS || 'nomadic';
 const jwt = require('jsonwebtoken');
 
 function encrypt(text) {
@@ -98,42 +98,54 @@ exports.login = (req, res) => {
     }
   });
 };
-//  Forgot password
-exports.forgotPassword = (req,res) => {
-  const email = req.body.email;
-  if(email === "") {
-    res.json('Email required !')
-  } else {
-    connection.query(`SELECT *from users WHERE email = ${email}`,(error, rows, field) => {
-      if(rows === ""){
-        console.log('Email not in database');
-        res.json('Email nothing in db ');
+
+exports.changePassword = (req, res) => {
+  let id = req.params.id;
+  let password = req.body.password;
+  let passEncrypt = encrypt(password);
+  console.log(password)
+  const query = `UPDATE users SET password='${passEncrypt}' WHERE id=${id}`;
+  connection.query(query, (error, rows, field) => {
+    if (error) {
+      return res.send(error)
+    } else {
+      if (rows.affectedRows === 1) {
+        res.status(200).json({
+          status: 201,
+          data: rows
+        })
       } else {
-        const transporter = nodemailer.createTransport({
-          service : 'gmail',
-          auth : {
-            user : 'maslownr@gmail.com',
-            pass: '085959933411'
-          }
-        });
-
-        const mailOptions = {
-          from : 'maslownr@gmail.com',
-          to : `${users.email}`,
-          subject: 'Link to reset password',
-          text: 'Ingin melihat passwordmu ? klik link berikut !\n'+`https://elevenia.herokuapp.com/users/resetPassword/${users._id}`     
-        };
-
-        transporter.sendMail(mailOptions,function(err,res){
-          if(err){
-            console.error('something wrong ',err);
-          }
+        res.status(404).json({
+          status: 404,
+          data: 'Data not found !'
         })
       }
-      return res.status(200).json({
-        status : 200,
-        message : `Data has been sended to email ${users.email}`
-      })
-    })
-  }
- }
+    }
+  })
+}
+
+exports.editUsers = (req, res) => {
+  let id = req.params.id;
+  let { name, password, email, address, gender } = req.body;
+  let phone = parseInt(req.body.phone);
+  let passEncrypt = encrypt(password);
+  console.log(passEncrypt)
+  const query = `UPDATE users SET name='${name}', password='${passEncrypt}', email='${email}', address='${address}', phone='${phone}',gender='${gender}' WHERE id=${id}`;
+  connection.query(query, (error, rows, field) => {
+    if (error) {
+      return res.send(error)
+    } else {
+      if (rows.affectedRows === 1) {
+        res.status(200).json({
+          status: 201,
+          data: rows
+        })
+      } else {
+        res.status(404).json({
+          status: 404,
+          data: 'Data not found !'
+        })
+      }
+    }
+  })
+}
