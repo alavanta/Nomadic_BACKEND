@@ -11,8 +11,8 @@ const checkAuth = require('./middleware/check-auth');
 const usersRouter = require('./routes/users');
 const packagesRouter = require('./routes/packages');
 const transactionRouter = require('./routes/transaction');
-
-const transactionRouter = require('./routes/transaction');
+const forgotPasswordRouter = require('./routes/forgotPassword');
+const bookingRouter = require('./routes/booking');
 
 const app = express();
 
@@ -24,7 +24,7 @@ app.use(logger('dev'));
 
 // Routing
 app.use('/users', usersRouter);
-app.use('/packages', packagesRouter);
+app.use('/packages', checkAuth, packagesRouter);
 app.use('/booking', bookingRouter);
 app.use('/reset_password', forgotPasswordRouter);
 app.use('/transaction', transactionRouter);
