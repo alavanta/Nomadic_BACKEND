@@ -28,13 +28,13 @@ exports.createUsers = (req, res) => {
   const password = encrypt(req.body.password);
 
   if (!name) {
-    res.status(400).send('name is require');
+    response.falseRequirement(res, 'name');
   } else if (!password) {
-    res.status(400).send('Password is require');
+    response.falseRequirement(res, 'password');
   } else if (!email) {
-    res.status(400).send('Email is require');
+    response.falseRequirement(res, 'email');
   } else if (!address) {
-    res.status(400).send('Address is require');
+    response.falseRequirement(res, 'address');
   } else {
     connection.query(
       `SELECT * from users where email=\'${email}\' LIMIT 1`,
@@ -43,9 +43,7 @@ exports.createUsers = (req, res) => {
           console.log(error);
         } else {
           if (rowss != '') {
-            return res.send({
-              message: 'Email has been registered'
-            });
+            return response.invalid(res, 'email');
           } else {
             connection.query(
               //insert
@@ -57,14 +55,11 @@ exports.createUsers = (req, res) => {
                 } else {
                   connection.query(
                     `SELECT *  FROM users ORDER BY id DESC LIMIT 1`,
-                    (error, rowssss, field) => {
+                    (error, data, field) => {
                       if (error) {
                         console.log(error);
                       } else {
-                        return res.send({
-                          data: rowssss,
-                          message: 'Data has been saved'
-                        });
+                        return response.changed(res, data, 'added');
                       }
                     }
                   );
@@ -98,4 +93,4 @@ exports.login = (req, res) => {
     }
   });
 };
-//  Packages 
+//  Packages

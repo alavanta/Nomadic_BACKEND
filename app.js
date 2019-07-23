@@ -4,6 +4,9 @@ const bodyParser = require('body-parser');
 const logger = require('morgan');
 const cors = require('cors');
 
+// Auth Middleware
+const checkAuth = require('./middleware/check-auth');
+
 // Routes
 const usersRouter = require('./routes/users');
 const packagesRouter = require('./routes/packages');
