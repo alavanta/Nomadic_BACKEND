@@ -6,7 +6,7 @@ const isEmpty = require('lodash.isempty');
 
 exports.showPackages = (req, res) => {
     let search = req.query.search;
-    let query = "SELECT *FROM packages LEFT JOIN destinations ON destinations.id_package = packages.id";
+    let query = "SELECT *FROM packages";
     
     if(!isEmpty(search)){
         query += ` WHERE packages.package_name LIKE '%${req.query.search}%' OR packages.package_city LIKE '%${req.query.search}%'`;
@@ -30,6 +30,32 @@ exports.showPackages = (req, res) => {
             }
         }
     })
+}
+
+exports.showPackagesById = (req,res) => {
+    let id = req.params.id;  
+    let query = `SELECT *FROM packages LEFT JOIN destinations ON destinations.id_package = packages.id WHERE packages.id = ${id}`;
+
+    connection.query(query, (error, rows, field) => {
+        if (error) {
+            console.log(error)
+        } else {
+            if (rows != "") {
+                res.status(200).json({
+                    status: 200,
+                    data: rows
+                })
+            }
+            else {
+                res.status(404).json({
+                    status: 404,
+                    data: 'Data not found !'
+                })
+            }
+        }
+    })
+
+
 }
 
 // Destination

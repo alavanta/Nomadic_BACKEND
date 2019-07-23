@@ -47,8 +47,8 @@ exports.createUsers = (req, res) => {
           } else {
             connection.query(
               //insert
-              `Insert into users set name=?, password=?, email=?, phone=?, gender=?, address=?`,
-              [name, password, email, phone, gender, address],
+              `Insert into users set name=?, password=?, email=?, phone=?, address=?, gender=?`,
+              [name, password, email, phone, address, gender],
               (error, rowsss, field) => {
                 if (error) {
                   console.log(error);
@@ -156,6 +156,28 @@ exports.changePassword = (req, res) => {
         });
       } else {
         res.status(404).json({
+          status: 404,
+          data: 'Data not found !'
+        });
+      }
+    }
+  });
+};
+
+exports.getUsersById = (req, res) => {
+  let id = req.params.id;
+  const query = `SELECT *FROM users WHERE id = ${id}`;
+  connection.query(query, (error, rows, fields) => {
+    if (error) {
+      return res.send(error);
+    } else {
+      if (rows !== '') {
+        res.status(200).json({
+          status: 201,
+          data: rows
+        });
+      } else {
+        res.status(401).json({
           status: 404,
           data: 'Data not found !'
         });
