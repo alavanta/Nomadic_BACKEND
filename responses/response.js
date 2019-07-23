@@ -31,7 +31,7 @@ exports.successWithInfo = (res, value, queryInfo) => {
   res.end();
 };
 
-exports.inserted = (res, data, message) => {
+exports.changed = (res, data, message) => {
   const result = {
     status: {
       code: 201,
@@ -65,4 +65,37 @@ exports.error = (res, err) => {
   };
   res.status(500).json({ nomadic: result });
   res.end();
+};
+
+exports.falseRequirement = (res, field) => {
+  const result = {
+    status: {
+      code: 500,
+      message: 'the' + field + ' field is needed'
+    }
+  };
+  res.status(500).json({ nomadic: result });
+  res.end();
+};
+
+exports.loginFailed = res => {
+  res.status(403).send({
+    status: 403,
+    message: 'Incorrect username or password'
+  });
+};
+
+exports.loginSuccess = (res, rows, token) => {
+  res.status(200).send({
+    status: 200,
+    data: rows,
+    token: token
+  });
+};
+
+exports.invalid = (res, status) => {
+  res.status(400).json({
+    status: 400,
+    message: 'invalild ' + status
+  });
 };
