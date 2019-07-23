@@ -11,6 +11,7 @@ const checkAuth = require('./middleware/check-auth');
 const usersRouter = require('./routes/users');
 const packagesRouter = require('./routes/packages');
 const bookingRouter = require('./routes/booking');
+const forgotPasswordRouter = require('./routes/forgotPassword');
 
 const app = express();
 
@@ -24,5 +25,6 @@ app.use(logger('dev'));
 app.use('/users', usersRouter);
 app.use('/packages', packagesRouter);
 app.use('/booking', bookingRouter);
+app.use('/reset_password', forgotPasswordRouter);
 
 app.listen(process.env.PORT || 3000);

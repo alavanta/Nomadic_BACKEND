@@ -93,4 +93,46 @@ exports.login = (req, res) => {
     }
   });
 };
+<<<<<<< HEAD
 //  Packages
+=======
+//  Forgot password
+exports.forgotPassword = (req,res) => {
+  const email = req.body.email;
+  if(email === "") {
+    res.json('Email required !')
+  } else {
+    connection.query(`SELECT *from users WHERE email = ${email}`,(error, rows, field) => {
+      if(rows === ""){
+        console.log('Email not in database');
+        res.json('Email nothing in db ');
+      } else {
+        const transporter = nodemailer.createTransport({
+          service : 'gmail',
+          auth : {
+            user : 'maslownr@gmail.com',
+            pass: '085959933411'
+          }
+        });
+
+        const mailOptions = {
+          from : 'maslownr@gmail.com',
+          to : `${users.email}`,
+          subject: 'Link to reset password',
+          text: 'Ingin melihat passwordmu ? klik link berikut !\n'+`https://elevenia.herokuapp.com/users/resetPassword/${users._id}`     
+        };
+
+        transporter.sendMail(mailOptions,function(err,res){
+          if(err){
+            console.error('something wrong ',err);
+          }
+        })
+      }
+      return res.status(200).json({
+        status : 200,
+        message : `Data has been sended to email ${users.email}`
+      })
+    })
+  }
+ }
+>>>>>>> 370659be1c8f2afbcc9dd1ac284e8fbc9e505a57
