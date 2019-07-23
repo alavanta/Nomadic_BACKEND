@@ -1,12 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-router.get('/register', (req, res) => {
-  res.status(200).send({
-    nomadic: {
-      status: 'Sukses fetch Data'
-    }
-  });
-});
+const packageController = require('../controllers/packages');
+
+router.get('/', packageController.showPackages);
+router.get('/destinations/:id', packageController.destinationById);
 
 module.exports = router;

@@ -23,48 +23,45 @@ function decrypt(text) {
   return dec;
 }
 
-exports.createUsers = function(req, res) {
+exports.createUsers = (req, res) => {
+
   const { name, email, phone, address, gender } = req.body;
   const password = encrypt(req.body.password);
 
   if (!name) {
-    res.status(400).send('name is require');
+    response.falseRequirement(res, 'name');
   } else if (!password) {
-    res.status(400).send('Password is require');
+    response.falseRequirement(res, 'password');
   } else if (!email) {
-    res.status(400).send('Email is require');
+    response.falseRequirement(res, 'email');
   } else if (!address) {
-    res.status(400).send('Address is require');
+    response.falseRequirement(res, 'address');
   } else {
     connection.query(
       `SELECT * from users where email=\'${email}\' LIMIT 1`,
-      function(error, rowss, field) {
+      (error, rowss, field) => {
+
         if (error) {
           console.log(error);
         } else {
           if (rowss != '') {
-            return res.send({
-              message: 'Email has been registered'
-            });
+            return response.invalid(res, 'email');
           } else {
             connection.query(
               //insert
               `Insert into users set name=?, password=?, email=?, phone=?, gender=?, address=?`,
               [name, password, email, address, phone, gender],
-              function(error, rowsss, field) {
+              (error, rowsss, field) => {
                 if (error) {
                   console.log(error);
                 } else {
                   connection.query(
                     `SELECT *  FROM users ORDER BY id DESC LIMIT 1`,
-                    function(error, rowssss, field) {
+                    (error, data, field) => {
                       if (error) {
                         console.log(error);
                       } else {
-                        return res.send({
-                          data: rowssss,
-                          message: 'Data has been saved'
-                        });
+                        return response.changed(res, data, 'added');
                       }
                     }
                   );
@@ -78,34 +75,70 @@ exports.createUsers = function(req, res) {
   }
 };
 
-exports.login = function(req, res) {
+exports.login = (req, res) => {
   const email = req.body.email || '';
   const password = req.body.password || '0';
   let encrypted = encrypt(password);
   const query = `SELECT * FROM users WHERE email='${email}' AND password='${encrypted}'`;
-  connection.query(query, function(error, rows, field) {
+  connection.query(query, (error, rows, field) => {
     if (error) {
-      return res.send({
-        status: 403,
-        message: 'forbidden'
-      });
+      return response.loginFailed(res);
     } else {
       if (rows != '') {
         const token = jwt.sign({ rows }, process.env.JWT_KEY, {
-          expiresIn: '1h'
+          expiresIn: '24h'
         });
-
-        return res.send({
-          status: 200,
-          data: rows,
-          token: token
-        });
+        return response.loginSuccess(res, rows, token);
       } else {
-        return res.send({
-          status: 403,
-          message: 'Incorrect username or password'
-        });
+        return response.loginFailed(res);
       }
     }
   });
 };
+
+
+//  Forgot password
+exports.forgotPassword = (req, res) => {
+  const email = req.body.email;
+  if (email === '') {
+    res.json('Email required !');
+  } else {
+    connection.query(
+      `SELECT *from users WHERE email = ${email}`,
+      (error, rows, field) => {
+        if (rows === '') {
+          console.log('Email not in database');
+          res.json('Email nothing in db ');
+        } else {
+          const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+              user: 'maslownr@gmail.com',
+              pass: '085959933411'
+            }
+          });
+
+          const mailOptions = {
+            from: 'maslownr@gmail.com',
+            to: `${users.email}`,
+            subject: 'Link to reset password',
+            text:
+              'Ingin melihat passwordmu ? klik link berikut !\n' +
+              `https://elevenia.herokuapp.com/users/resetPassword/${users._id}`
+          };
+
+          transporter.sendMail(mailOptions, function(err, res) {
+            if (err) {
+              console.error('something wrong ', err);
+            }
+          });
+        }
+        return res.status(200).json({
+          status: 200,
+          message: `Data has been sended to email ${users.email}`
+        });
+      }
+    );
+  }
+};
+
