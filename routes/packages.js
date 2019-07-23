@@ -4,6 +4,7 @@ const packageController = require('../controllers/packages');
 
 
 router.get('/', packageController.showPackages);
+router.get('/:id',packageController.showPackagesById);
 router.get('/destinations/:id', packageController.destinationById);
 
 module.exports = router;
