@@ -7,6 +7,7 @@ const cors = require('cors');
 // Routes
 const usersRouter = require('./routes/users');
 const packagesRouter = require('./routes/packages');
+const transactionRouter = require('./routes/transaction');
 
 const app = express();
 
@@ -19,5 +20,5 @@ app.use(logger('dev'));
 // Routing
 app.use('/users', usersRouter);
 app.use('/packages', packagesRouter);
-
+app.use('/transaction', transactionRouter);
 app.listen(process.env.PORT || 3000);
