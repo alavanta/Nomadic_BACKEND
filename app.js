@@ -10,8 +10,8 @@ const checkAuth = require('./middleware/check-auth');
 // Routes
 const usersRouter = require('./routes/users');
 const packagesRouter = require('./routes/packages');
-const bookingRouter = require('./routes/booking');
-const forgotPasswordRouter = require('./routes/forgotPassword');
+const transactionRouter = require('./routes/transaction');
+
 const transactionRouter = require('./routes/transaction');
 
 const app = express();

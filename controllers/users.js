@@ -24,6 +24,7 @@ function decrypt(text) {
 }
 
 exports.createUsers = (req, res) => {
+
   const { name, email, phone, address, gender } = req.body;
   const password = encrypt(req.body.password);
 
@@ -39,6 +40,7 @@ exports.createUsers = (req, res) => {
     connection.query(
       `SELECT * from users where email=\'${email}\' LIMIT 1`,
       (error, rowss, field) => {
+
         if (error) {
           console.log(error);
         } else {
@@ -94,6 +96,7 @@ exports.login = (req, res) => {
   });
 };
 
+
 //  Forgot password
 exports.forgotPassword = (req, res) => {
   const email = req.body.email;
@@ -138,3 +141,4 @@ exports.forgotPassword = (req, res) => {
     );
   }
 };
+
