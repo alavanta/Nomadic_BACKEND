@@ -66,3 +66,18 @@ exports.error = (res, err) => {
   res.status(500).json({ nomadic: result });
   res.end();
 };
+
+exports.loginFailed = res => {
+  res.status(403).send({
+    status: 403,
+    message: 'Incorrect username or password'
+  });
+};
+
+exports.loginSuccess = (res, rows, token) => {
+  res.status(200).send({
+    status: 200,
+    data: rows,
+    token: token
+  });
+};

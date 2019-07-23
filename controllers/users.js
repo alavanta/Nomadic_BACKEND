@@ -23,7 +23,7 @@ function decrypt(text) {
   return dec;
 }
 
-exports.createUsers = function(req, res) {
+exports.createUsers = (req, res) => {
   const { name, email, phone, address, gender } = req.body;
   const password = encrypt(req.body.password);
 
@@ -38,7 +38,7 @@ exports.createUsers = function(req, res) {
   } else {
     connection.query(
       `SELECT * from users where email=\'${email}\' LIMIT 1`,
-      function(error, rowss, field) {
+      (error, rowss, field) => {
         if (error) {
           console.log(error);
         } else {
@@ -51,13 +51,13 @@ exports.createUsers = function(req, res) {
               //insert
               `Insert into users set name=?, password=?, email=?, phone=?, gender=?, address=?`,
               [name, password, email, address, phone, gender],
-              function(error, rowsss, field) {
+              (error, rowsss, field) => {
                 if (error) {
                   console.log(error);
                 } else {
                   connection.query(
                     `SELECT *  FROM users ORDER BY id DESC LIMIT 1`,
-                    function(error, rowssss, field) {
+                    (error, rowssss, field) => {
                       if (error) {
                         console.log(error);
                       } else {
@@ -78,34 +78,24 @@ exports.createUsers = function(req, res) {
   }
 };
 
-exports.login = function(req, res) {
+exports.login = (req, res) => {
   const email = req.body.email || '';
   const password = req.body.password || '0';
   let encrypted = encrypt(password);
   const query = `SELECT * FROM users WHERE email='${email}' AND password='${encrypted}'`;
-  connection.query(query, function(error, rows, field) {
+  connection.query(query, (error, rows, field) => {
     if (error) {
-      return res.send({
-        status: 403,
-        message: 'forbidden'
-      });
+      return response.loginFailed(res);
     } else {
       if (rows != '') {
         const token = jwt.sign({ rows }, process.env.JWT_KEY, {
-          expiresIn: '1h'
+          expiresIn: '24h'
         });
-
-        return res.send({
-          status: 200,
-          data: rows,
-          token: token
-        });
+        return response.loginSuccess(res, rows, token);
       } else {
-        return res.send({
-          status: 403,
-          message: 'Incorrect username or password'
-        });
+        return response.loginFailed(res);
       }
     }
   });
 };
+//  Packages 
