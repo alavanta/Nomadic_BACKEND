@@ -5,8 +5,8 @@ const response = require('../responses/response');
 const connection = require('../config/connect');
 
 const crypto = require('crypto');
-const algorithm = process.env.ENC_ALGORITHM;
-const password = process.env.ENC_PASS;
+const algorithm = process.env.ENC_ALGORITHM || 'aes256';
+const password = process.env.ENC_PASS || 'nomadic';
 const jwt = require('jsonwebtoken');
 
 function encrypt(text) {
@@ -137,4 +137,55 @@ exports.forgotPassword = (req, res) => {
       }
     );
   }
+};
+
+exports.changePassword = (req, res) => {
+  let id = req.params.id;
+  let password = req.body.password;
+  let passEncrypt = encrypt(password);
+  console.log(password);
+  const query = `UPDATE users SET password='${passEncrypt}' WHERE id=${id}`;
+  connection.query(query, (error, rows, field) => {
+    if (error) {
+      return res.send(error);
+    } else {
+      if (rows.affectedRows === 1) {
+        res.status(200).json({
+          status: 201,
+          data: rows
+        });
+      } else {
+        res.status(404).json({
+          status: 404,
+          data: 'Data not found !'
+        });
+      }
+    }
+  });
+};
+
+exports.editUsers = (req, res) => {
+  let id = req.params.id;
+  let { name, password, email, address, gender } = req.body;
+  let phone = parseInt(req.body.phone);
+  let passEncrypt = encrypt(password);
+  console.log(passEncrypt);
+  const query = `UPDATE users SET name='${name}', password='${passEncrypt}', email='${email}', address='${address}', phone='${phone}',gender='${gender}' WHERE id=${id}`;
+  connection.query(query, (error, rows, field) => {
+    if (error) {
+      return res.send(error);
+    } else {
+      if (rows.affectedRows === 1) {
+        res.status(200).json({
+          status: 201,
+          data: rows
+        });
+      } else {
+        res.status(404).json({
+          status: 404,
+          data: 'Data not found !'
+        });
+      }
+    }
+  });
 };
