@@ -3,10 +3,12 @@ require('dotenv').config();
 // const response = require('../responses/response');
 const connection = require('../config/connect');
 const isEmpty = require('lodash.isempty');
+const redis = require('redis');
+const client = redis.createClient(process.env.REDIS_URL);
 
 exports.showPackages = (req, res) => {
   let search = req.query.search;
-  let query = 'SELECT *FROM packages';
+  let query = 'SELECT * FROM packages';
 
   if (!isEmpty(search)) {
     query += ` WHERE packages.package_name LIKE '%${
@@ -14,21 +16,34 @@ exports.showPackages = (req, res) => {
     }%' OR packages.package_city LIKE '%${req.query.search}%'`;
   }
 
-  connection.query(query, (error, rows, field) => {
-    if (error) {
-      console.log(error);
+  let regisKey = 'packages:rows';
+
+  return client.get(regisKey, (err, rows) => {
+    console.log(regisKey);
+
+    if (rows) {
+      res.send({
+        data: JSON.parse(rows)
+      });
+      client.del(regisKey);
     } else {
-      if (rows != '') {
-        res.status(200).json({
-          status: 200,
-          data: rows
-        });
-      } else {
-        res.status(404).json({
-          status: 404,
-          data: 'Data not found !'
-        });
-      }
+      connection.query(query, (error, rows, field) => {
+        if (error) {
+          res.status(400), console.log(error);
+        } else {
+          if (rows != '') {
+            client.setex(regisKey, 3600, JSON.stringify(rows));
+            res.status(200).send({
+              data: rows
+            });
+          } else {
+            res.status(404).json({
+              status: 404,
+              data: 'Data not found !'
+            });
+          }
+        }
+      });
     }
   });
 };
