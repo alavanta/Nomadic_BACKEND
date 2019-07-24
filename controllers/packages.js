@@ -37,7 +37,6 @@ exports.showPackagesById = (req, res) => {
   let id = req.params.id;
   let fetchDestination = `SELECT *FROM packages LEFT JOIN destinations ON destinations.id_package = packages.id WHERE destinations.id_package = ${id}`;
   let query = `SELECT * FROM packages WHERE packages.id = ${id}`;
-  console.log(req.userData);
 
   connection.query(fetchDestination, (error, data) => {
     if (error) {

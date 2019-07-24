@@ -2,6 +2,9 @@ const key = process.env.STRIPE_TEST_KEY;
 const stripe = require('stripe')(key);
 
 exports.stripe = async function(req, res) {
+  console.log(req.userData, 'data dari token');
+  console.log(req.body, 'data dari req');
+
   const number = req.body.number || '4242424242424242';
   const month = req.body.month || 12;
   const year = req.body.year || 2020;
