@@ -1,13 +1,14 @@
 const key = process.env.STRIPE_TEST_KEY
 const stripe = require("stripe")(key);
+const connection = require('../config/connect');
 
 exports.stripe = async function (req, res) {
-  const number = req.body.number || '4242424242424242';
+  const number = req.body.number || '4242 4242 4242 4242';
   const month = req.body.month || 12;
   const year = req.body.year || 2020;
   const cvc = req.body.cvc || '123';
   let amount = req.body.amount || 1000000;
-  amount = amount / 13970.05
+  amount = amount / 14000
   let str = amount.toString()
   let i = str.indexOf('.');
   let a = str.substr(i + 1, i);
@@ -17,7 +18,7 @@ exports.stripe = async function (req, res) {
   }
   amount = amount * 100 + Number(a)
 
-  try {
+  try {const connection = require('../config/connect');
     stripe.tokens.create({
       card: {
         number: number,
