@@ -22,13 +22,14 @@ exports.stripe = async function(req, res) {
 
   try {
     idUser = req.userData.id;
+    console.log(req.userData);
   } catch (err) {
     return res.status(403).json({ message: 'unauthorized user' });
   }
 
   packageId = req.body.packageId;
-  date = req.body.date;
-  passanger = req.body.totalPassanger;
+  date = req.body.date || '23-06-2019';
+  passanger = req.body.totalPassanger || 2;
 
   if (packageId == '' || packageId == undefined) {
     if (
@@ -42,6 +43,8 @@ exports.stripe = async function(req, res) {
     return res.status(403).json({ message: 'undefined field' });
   }
   try {
+    console.log('masuk try catch');
+
     stripe.tokens
       .create({
         card: {
@@ -52,19 +55,29 @@ exports.stripe = async function(req, res) {
         }
       })
       .then(token => {
+        console.log('MASUK KE TOKEN');
+
         return stripe.charges.create({
           amount: amount,
-          currency: 'idr',
+          currency: 'usd',
           source: token.id
         });
       })
       .then(result => {
-        const sql = `INSERT INTO booking id_user=${idUser}, id_packages=${packageId}, booking_date=${date}, booking_passanger=${passanger}`;
+        console.log('SUKESE');
+        console.log(idUser);
+
+        const sql = `INSERT INTO booking SET id_user=${idUser}, id_packages=${packageId}, booking_date=${date}, booking_passenger=${passanger}`;
         connection.query(sql, function(err, row, field) {
+          if (err) {
+            console.log(err);
+          }
           res.status(200).json({ status: 200, message: 'payment succesfull' });
         });
       })
       .catch(err => {
+        // console.log(err);
+
         res.status(400).json(err);
       });
   } catch (err) {

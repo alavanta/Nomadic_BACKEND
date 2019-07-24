@@ -31,30 +31,42 @@ const transporter = nodemailer.createTransport({
 
 exports.sendEmail = function(req, res) {
   let mailTo = req.body.email;
-  let code = Math.floor(Math.random() * Math.floor(999999));
-  if (code < 100000) {
-    code = code + 100000;
-  }
-  let key = '__code__' + mailTo;
-  mcache.put(key, code, 300000);
-  mcache.put('mail', mailTo, 300000);
-  const mailOptions = {
-    from: email,
-    to: mailTo,
-    subject: 'Reset password',
-    text:
-      'Use this code to reset password ' +
-      code +
-      ' this code will expired after 5 minutes'
-  };
+  conn.query(
+    `SELECT email from users WHERE email = '${req.body.email}'`,
+    (err, rows, field) => {
+      console.log('email ', mailTo);
+      if (rows == '') {
+        res.status(403).send('Email not registry on database !');
+      } else {
+        let code = Math.floor(Math.random() * Math.floor(999999));
+        if (code < 100000) {
+          code = code + 100000;
+        }
+        let key = '__code__' + mailTo;
+        mcache.put(key, code, 300000);
+        mcache.put('mail', mailTo, 300000);
+        const mailOptions = {
+          from: email,
+          to: mailTo,
+          subject: 'Reset password',
+          text:
+            'Use this code to reset password ' +
+            code +
+            ' this code will expired after 5 minutes'
+        };
 
-  transporter.sendMail(mailOptions, function(error, info) {
-    if (error) {
-      res.send({ status: 403, message: error });
-    } else {
-      res.send({ status: 200, info: info, message: 'Mail sent!' });
+        transporter.sendMail(mailOptions, function(error, info) {
+          if (error) {
+            res.status(404).send({ status: 403, message: error });
+          } else {
+            res
+              .status(200)
+              .send({ status: 200, info: info, message: 'Mail sent!' });
+          }
+        });
+      }
     }
-  });
+  );
 };
 
 exports.resetPassword = function(req, res) {
@@ -66,7 +78,7 @@ exports.resetPassword = function(req, res) {
   let newPass = req.body.newPass || 'admin';
   console.log(code);
   if (myCode !== code) {
-    res.send({ status: 403, message: 'Incorrect code' });
+    res.status(403).send({ status: 403, message: 'Incorrect code' });
   } else {
     conn.query(
       `UPDATE users SET \`password\`='${encrypt(
