@@ -83,7 +83,7 @@ exports.login = (req, res) => {
       return response.loginFailed(res);
     } else {
       if (rows != '') {
-        const token = jwt.sign({ rows }, process.env.JWT_KEY, {
+        const token = jwt.sign({ rows }, 'nomadic', {
           expiresIn: '24h'
         });
         return response.loginSuccess(res, rows, token);
@@ -191,7 +191,6 @@ exports.editUsers = (req, res) => {
   let { name, password, email, address, gender } = req.body;
   let phone = parseInt(req.body.phone);
   let passEncrypt = encrypt(password);
-  console.log(passEncrypt);
   const query = `UPDATE users SET name='${name}', password='${passEncrypt}', email='${email}', address='${address}', phone='${phone}',gender='${gender}' WHERE id=${id}`;
   connection.query(query, (error, rows, field) => {
     if (error) {

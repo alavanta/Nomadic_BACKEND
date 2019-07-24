@@ -24,9 +24,10 @@ app.use(logger('dev'));
 
 // Routing
 app.use('/users', usersRouter);
-app.use('/packages', checkAuth, packagesRouter);
+app.use('/packages', packagesRouter);
 app.use('/booking', bookingRouter);
 app.use('/reset_password', forgotPasswordRouter);
 app.use('/transaction', transactionRouter);
 
 app.listen(process.env.PORT || 3000);
+console.log(3000);
