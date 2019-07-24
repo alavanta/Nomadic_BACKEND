@@ -10,4 +10,5 @@ router.get('/', checkAuth, usersController.getUsersById);
 router.put('/:id', usersController.editUsers);
 router.put('/password/:id', usersController.changePassword);
 
+router.get('/:id',usersController.getUsersById);
 module.exports = router;
