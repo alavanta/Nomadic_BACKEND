@@ -3,10 +3,12 @@ const stripe = require("stripe")(key);
 const connection = require('../config/connect');
 
 exports.stripe = async function (req, res) {
-  const number = req.body.number || '4242 4242 4242 4242';
+  let number = req.body.number || '4242 4242 4242 4242';
+  number = number.replace(/\s+/gi, '');
   const month = req.body.month || 12;
   const year = req.body.year || 2020;
   const cvc = req.body.cvc || '123';
+  // amount convert idr to usd
   let amount = req.body.amount || 1000000;
   amount = amount / 14000
   let str = amount.toString()
@@ -18,7 +20,24 @@ exports.stripe = async function (req, res) {
   }
   amount = amount * 100 + Number(a)
 
-  try {const connection = require('../config/connect');
+  try{
+    idUser = req.userData.id
+  }
+  catch(err){
+    return res.status(403).json({message: 'unauthorized user'})
+  }
+  
+  packageId = req.body.packageId
+  date = req.body.date
+  passanger = req.body.totalPassanger
+
+  if(packageId == '' || packageId == undefined){
+    if(date == '' ||  date == undefined || passanger == '' || passanger == undefined){
+      return res.status(403).json({message: 'undefined field'})
+    }
+    return res.status(403).json({message: 'undefined field'})
+  }
+  try {
     stripe.tokens.create({
       card: {
         number: number,
@@ -35,7 +54,10 @@ exports.stripe = async function (req, res) {
         });
       })
       .then((result) => {
-        res.status(200).json({ status: 200, message: "payment succesfull" })
+        const sql = `INSERT INTO booking id_user=${idUser}, id_packages=${packageId}, booking_date=${date}, booking_passanger=${passanger}`;
+        connection.query(sql, function(err, row, field){
+          res.status(200).json({ status: 200, message: "payment succesfull"})
+        })
       })
       .catch((err) => {
         res.status(400).json(err)

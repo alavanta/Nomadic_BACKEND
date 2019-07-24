@@ -165,8 +165,8 @@ exports.changePassword = (req, res) => {
 };
 
 exports.getUsersById = (req, res) => {
-  let id = req.params.id;
-  const query = `SELECT *FROM users WHERE id = ${id}`;
+  const id = req.userData.id;
+  const query = `SELECT * FROM users WHERE id = ${id}`;
   connection.query(query, (error, rows, fields) => {
     if (error) {
       return res.send(error);
