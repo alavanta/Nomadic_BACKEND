@@ -24,7 +24,17 @@ function decrypt(text) {
 }
 
 exports.createTourGuide = (req, res) => {
-  const { name, email, phone, photo, address, gender, age, skill,status } = req.body;
+  const {
+    name,
+    email,
+    phone,
+    photo,
+    address,
+    gender,
+    age,
+    skill,
+    status
+  } = req.body;
   const password = encrypt(req.body.password);
 
   if (!name) {
@@ -48,7 +58,18 @@ exports.createTourGuide = (req, res) => {
             connection.query(
               //insert
               `Insert into guide set guide_name=?, guide_email=?, guide_password=?, guide_phone=?, guide_photo=?,guide_address=?, guide_gender=?, guide_abilities=? , guide_age=?,status=?`,
-              [name, email, password, phone, photo, address, gender, skill, age, status],
+              [
+                name,
+                email,
+                password,
+                phone,
+                photo,
+                address,
+                gender,
+                skill,
+                age,
+                status
+              ],
               (error, rowsss, field) => {
                 if (error) {
                   console.log(error);
@@ -76,12 +97,12 @@ exports.createTourGuide = (req, res) => {
 exports.login = (req, res) => {
   const email = req.body.email;
   const password = req.body.password || '0';
-  console.log(email)
+  console.log(email);
   let encrypted = encrypt(password);
   const query = `SELECT * FROM guide WHERE guide_email='${email}' AND guide_password='${encrypted}'`;
   connection.query(query, (error, rows, field) => {
     if (error) {
-      console.log(query)
+      console.log(query);
       return response.loginFailed(res);
     } else {
       if (rows != '') {
@@ -90,7 +111,7 @@ exports.login = (req, res) => {
         });
         return response.loginSuccess(res, rows, token);
       } else {
-        console.log(query)
+        console.log(query);
         return response.loginFailed(res);
       }
     }
@@ -123,7 +144,7 @@ exports.getTourGuideById = (req, res) => {
       if (rows != '') {
         res.status(200).json({
           status: 201,
-          data:rows[0]
+          data: rows[0]
         });
       } else {
         res.status(401).json({
@@ -141,10 +162,10 @@ exports.editTourGuide = (req, res) => {
   // const password = encrypt(req.body.password);
   // let passEncrypt = encrypt(password);
   const query = `UPDATE guide SET guide_name='${name}' , guide_address='${address}', guide_phone='${phone}',guide_gender='${gender}', guide_age='${age}' WHERE id=${id}`;
-  console.log(query)
+  console.log(query);
   connection.query(query, (error, rows, field) => {
     if (error) {
-      console.log(query)
+      console.log(query);
       return res.send(error);
     } else {
       if (rows.affectedRows === 1) {
@@ -153,7 +174,7 @@ exports.editTourGuide = (req, res) => {
           data: rows
         });
       } else {
-        console.log(query)
+        console.log(query);
         res.status(404).json({
           status: 404,
           data: 'Data not found !'
@@ -168,25 +189,25 @@ exports.deleteGuide = (req, res) => {
   let query = `DELETE FROM guide WHERE id = ${idGuide}`;
   connection.query(query, (error, rows, field) => {
     if (error) {
-      return res.send(error)
+      return res.status(403).send(error);
     } else {
       if (rows.affectedRows != 0) {
         res.status(201).json({
           status: 201,
-          id_guide : parseInt(idGuide),
+          id_guide: parseInt(idGuide),
           message: 'Guide deleted successfully.'
-        })
+        });
       } else {
-        res.status(401).json({
+        res.status(404).json({
           status: 404,
           message: 'Data not found !'
-        })
+        });
       }
     }
-  })
-}
+  });
+};
 
-exports.getStatus = (req,res)=>{
+exports.getStatus = (req, res) => {
   const stat = req.params.stat;
   let query = `SELECT * FROM guide WHERE status = ${stat}`;
   connection.query(query, (error, rows, field) => {
@@ -197,16 +218,16 @@ exports.getStatus = (req,res)=>{
         res.status(201).json({
           status: 201,
           data: rows
-        })
+        });
       } else {
-        res.status(401).json({
+        res.status(404).json({
           status: 401,
           message: 'Data not found !'
-        })
+        });
       }
     }
   });
-}
+};
 // --------------- SKILLS -----------------//
 exports.getSkillById = (req, res) => {
   const id = req.params.id;
@@ -219,60 +240,59 @@ exports.getSkillById = (req, res) => {
         res.status(201).json({
           status: 201,
           data: rows
-        })
+        });
       } else {
         res.status(401).json({
           status: 401,
           message: 'Data not found !'
-        })
+        });
       }
     }
   });
-}
+};
 
 exports.deleteSkillById = (req, res) => {
   const idSkill = req.params.id;
   let query = `DELETE FROM skills WHERE id = ${idSkill}`;
   connection.query(query, (error, rows, field) => {
     if (error) {
-      return res.send(error)
+      return res.send(error);
     } else {
       if (rows.affectedRows != 0) {
         res.status(201).json({
           status: 201,
-          id_skill : parseInt(idSkill),
+          id_skill: parseInt(idSkill),
           message: 'Skill deleted successfully.'
-        })
+        });
       } else {
         res.status(401).json({
           status: 404,
           message: 'Data not found !'
-        })
+        });
       }
     }
-  })
-}
+  });
+};
 
 exports.addSkill = (req, res) => {
   let { id_guide, skill } = req.body;
-  let query = `INSERT INTO skills SET id_guide = ${id_guide}, skill = '${skill}'`
+  let query = `INSERT INTO skills SET id_guide = ${id_guide}, skill = '${skill}'`;
 
-  connection.query(query,(error,rows,field) => {
-    if(error) {
+  connection.query(query, (error, rows, field) => {
+    if (error) {
       res.status(401).json({
         status: 401,
-        message : error
-      })
-    }
-    else {
+        message: error
+      });
+    } else {
       res.status(201).json({
         status: 201,
         message: 'Data added successfully',
-        data : {
-          id_guide : id_guide,
-          skill : skill
+        data: {
+          id_guide: id_guide,
+          skill: skill
         }
-      })
+      });
     }
-  })
-}
+  });
+};

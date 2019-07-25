@@ -108,3 +108,23 @@ exports.deleteBookingByUserId = (req, res) => {
     }
   );
 };
+
+exports.getBookingById = (req, res) => {
+  const id = req.params.id;
+  const query = `SELECT * FROM booking LEFT JOIN packages ON booking.id_packages = packages.id LEFT JOIN guide ON booking.id_guide = guide.id WHERE booking.id = ${id} LIMIT 10 `;
+  connection.query(query, (error, rows, field) => {
+    if (error) {
+      console.log(error);
+    } else {
+      if (!id) {
+        return response.falseRequirement(res, 'user');
+      } else {
+        if (rows != '') {
+          return response.success(res, rows);
+        } else {
+          return response.notFound(res);
+        }
+      }
+    }
+  });
+};
