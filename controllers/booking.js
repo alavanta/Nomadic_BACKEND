@@ -12,7 +12,7 @@ function getTime() {
 }
 
 exports.getBookingByUserId = (req, res) => {
-  const id = req.params.id || '';
+  const id = req.userData.id;
   const query = `SELECT * FROM booking LEFT JOIN packages ON booking.id_packages = packages.id WHERE booking.id_user=${id} LIMIT 10`;
   connection.query(query, (error, rows, field) => {
     if (error) {

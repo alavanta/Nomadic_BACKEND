@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const bookingController = require('../controllers/booking');
+const checkAuth = require('../middleware/check-auth');
 
-router.get('/:id', bookingController.getBookingByUserId);
+router.get('/', checkAuth, bookingController.getBookingByUserId);
 router.post('/:userId', bookingController.createBookingByUserId);
 router.delete('/delete/:userId/', bookingController.deleteBookingByUserId);
 
