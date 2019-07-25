@@ -1,6 +1,8 @@
 const key = process.env.STRIPE_TEST_KEY;
 const stripe = require('stripe')(key);
 const connection = require('../config/connect');
+const sendNotification = require('../middleware/sendNotification');
+const moment = require('moment');
 
 exports.stripe = async function(req, res) {
   let number = req.body.number || '4242 4242 4242 4242';
@@ -67,16 +69,26 @@ exports.stripe = async function(req, res) {
         console.log('SUKESE');
         console.log(idUser);
 
-        const sql = `INSERT INTO booking SET id_user=${idUser}, id_packages=${packageId}, booking_date=${date}, booking_passenger=${passanger}`;
+        const sql = `INSERT INTO booking SET id_user=${idUser}, id_packages=${packageId}, booking_date='${date}', booking_passenger=${passanger}`;
         connection.query(sql, function(err, row, field) {
           if (err) {
             console.log(err);
           }
+
+          var message = {
+            app_id: process.env.ONESIGNAL_APP_KEY,
+            headings: { en: 'Transaction Success' },
+            contents: { en: 'Your booking successfully delivered' },
+            send_after: moment().add(15, 's'),
+            include_player_ids: [req.body.appId]
+          };
+
+          sendNotification(message);
           res.status(200).json({ status: 200, message: 'payment succesfull' });
         });
       })
       .catch(err => {
-        // console.log(err);
+        console.log(err);
 
         res.status(400).json(err);
       });

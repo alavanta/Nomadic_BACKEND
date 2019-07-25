@@ -4,22 +4,21 @@ require('dotenv').config();
 const connection = require('../config/connect');
 const isEmpty = require('lodash.isempty');
 const redis = require('redis');
-const client = redis.createClient('redis://h:p7650c21ee2e8e3c0b3a10a95d3645b3111a525b03800b46ebb237f3bdb06b289@ec2-3-222-186-102.compute-1.amazonaws.com:31529');
+const client = redis.createClient(process.env.REDIS_URL);
 
 exports.showPackages = (req, res) => {
   let search = req.query.search;
   let query = 'SELECT * FROM packages';
 
-  let regisKey = 'packages:rows'
   if (!isEmpty(search)) {
     query += ` WHERE packages.package_name LIKE '%${
       req.query.search
       }%' OR packages.package_city LIKE '%${req.query.search}%'`;
   }
 
-  return client.get(regisKey, (err, rows) => {
-    console.log(regisKey);
+  let regisKey = 'packages:rows';
 
+  return client.get(regisKey, (err, rows) => {
     if (rows) {
       res.send({
         data: JSON.parse(rows)

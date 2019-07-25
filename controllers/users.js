@@ -74,9 +74,12 @@ exports.createUsers = (req, res) => {
 };
 
 exports.login = (req, res) => {
+  console.log(req.body);
   const email = req.body.email || '';
   const password = req.body.password || '0';
   let encrypted = encrypt(password);
+  console.log(encrypted);
+
   const query = `SELECT * FROM users WHERE email='${email}' AND password='${encrypted}'`;
   
   console.log(query) 
@@ -92,8 +95,7 @@ exports.login = (req, res) => {
         });
         return response.loginSuccess(res, rows, token);
       } else {
-        
-        console.log(query)
+        console.log(req.body);
         return response.loginFailed(res);
       }
     }
