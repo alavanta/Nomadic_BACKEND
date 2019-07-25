@@ -3,6 +3,7 @@ const stripe = require('stripe')(key);
 const connection = require('../config/connect');
 
 exports.stripe = async function(req, res) {
+  console.log(req.body);
   let number = req.body.number || '4242 4242 4242 4242';
   number = number.replace(/\s+/gi, '');
   const month = req.body.month || 12;
@@ -67,7 +68,7 @@ exports.stripe = async function(req, res) {
         console.log('SUKESE');
         console.log(idUser);
 
-        const sql = `INSERT INTO booking SET id_user=${idUser}, id_packages=${packageId}, booking_date=${date}, booking_passenger=${passanger}`;
+        const sql = `INSERT INTO booking SET id_user=${idUser}, id_packages=${packageId}, booking_date='${date}', booking_passenger=${passanger}`;
         connection.query(sql, function(err, row, field) {
           if (err) {
             console.log(err);
@@ -76,7 +77,7 @@ exports.stripe = async function(req, res) {
         });
       })
       .catch(err => {
-        // console.log(err);
+        console.log(err);
 
         res.status(400).json(err);
       });
