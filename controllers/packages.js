@@ -4,12 +4,50 @@ require('dotenv').config();
 const connection = require('../config/connect');
 const isEmpty = require('lodash.isempty');
 const redis = require('redis');
+<<<<<<< HEAD
+const client = redis.createClient();
+
+=======
 const client = redis.createClient(process.env.REDIS_URL);
+>>>>>>> master
 
 exports.showPackages = (req, res) => {
   let search = req.query.search;
   let query = 'SELECT * FROM packages';
 
+<<<<<<< HEAD
+    let regisKey = 'packages:rows'
+
+    return client.get(regisKey,(err,rows) => {
+        if(rows) {
+            res.send({
+                data : JSON.parse(rows)
+            })
+            client.del(regisKey)
+        }else {
+            connection.query(query, (error, rows, field) => {
+                if (error) {
+                    res.status(400),
+                    console.log(error)
+                } else {
+                    if (rows != "") {
+                        client.setex(regisKey,3600,JSON.stringify(rows));
+                            res.status(200).send({
+                                data: rows
+                        })
+                    }
+                    else {
+                        res.status(404).json({
+                            status: 404,
+                            data: 'Data not found !'
+                        })
+                    }
+                }
+            })
+        }
+    })
+}
+=======
   if (!isEmpty(search)) {
     query += ` WHERE packages.package_name LIKE '%${
       req.query.search
@@ -17,6 +55,7 @@ exports.showPackages = (req, res) => {
   }
 
   let regisKey = 'packages:rows';
+>>>>>>> master
 
   return client.get(regisKey, (err, rows) => {
     console.log(regisKey);

@@ -25,6 +25,7 @@
     "nodemailer-express-handlebars": "^3.1.0",
     "nodemon": "^1.19.1",
     "querystring": "^0.2.0",
+    "node-fetch": "^2.6.0",
     "redis": "^2.8.0",
     "stripe": "^7.4.0"
   }
