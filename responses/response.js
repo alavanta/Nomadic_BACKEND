@@ -52,7 +52,7 @@ exports.notFound = res => {
       message: 'no entry found'
     }
   };
-  res.status(200).json({ nomadic: result });
+  res.status(404).json({ nomadic: result });
   res.end();
 };
 

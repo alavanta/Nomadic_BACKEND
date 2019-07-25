@@ -158,6 +158,29 @@ exports.getTourGuideById = (req, res) => {
   });
 };
 
+exports.getTourGuideByIdAdmin = (req, res) => {
+  let query = `SELECT * FROM guide WHERE id = ${req.params.id}`;
+  console.log(query);
+  connection.query(query, (error, rows, fields) => {
+    console.log('punya tourGuide ', rows);
+    if (error) {
+      return res.send(error);
+    } else {
+      if (rows != '') {
+        res.status(200).json({
+          status: 201,
+          data: rows[0]
+        });
+      } else {
+        res.status(401).json({
+          status: 404,
+          data: 'Data not found !'
+        });
+      }
+    }
+  });
+};
+
 exports.editTourGuide = (req, res) => {
   let id = req.params.id;
   const { name, phone, address, gender, age } = req.body;
