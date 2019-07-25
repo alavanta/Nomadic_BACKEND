@@ -1,9 +1,10 @@
 const key = process.env.STRIPE_TEST_KEY;
 const stripe = require('stripe')(key);
 const connection = require('../config/connect');
+const sendNotification = require('../middleware/sendNotification');
+const moment = require('moment');
 
 exports.stripe = async function(req, res) {
-  console.log(req.body);
   let number = req.body.number || '4242 4242 4242 4242';
   number = number.replace(/\s+/gi, '');
   const month = req.body.month || 12;
@@ -73,6 +74,16 @@ exports.stripe = async function(req, res) {
           if (err) {
             console.log(err);
           }
+
+          var message = {
+            app_id: process.env.ONESIGNAL_APP_KEY,
+            headings: { en: 'Transaction Success' },
+            contents: { en: 'Your booking successfully delivered' },
+            send_after: moment().add(15, 's'),
+            include_player_ids: [req.body.appId]
+          };
+
+          sendNotification(message);
           res.status(200).json({ status: 200, message: 'payment succesfull' });
         });
       })
