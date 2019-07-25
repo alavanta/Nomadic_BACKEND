@@ -4,10 +4,16 @@ const tourGuideController = require('../controllers/tourGuide');
 const checkAuth = require('../middleware/check-auth');
 
 router.post('/register', tourGuideController.createTourGuide);
-router.post('/login', tourGuideController.login);
+router.post('/login',tourGuideController.login);
 //  Edit profile guide
 router.put('/:id', tourGuideController.editTourGuide);
-
-router.get('/',tourGuideController.getTourGuide);
-router.get('/:id',tourGuideController.getTourGuideById);
+router.get('/',checkAuth,tourGuideController.getTourGuide);
+router.get('/getById',checkAuth,tourGuideController.getTourGuideById);
+router.delete('/:id',tourGuideController.deleteGuide);
+// get status guide
+router.get('/status/:stat',tourGuideController.getStatus);
+//-------------------- Skills ----------------------
+router.get('/skills/:id',tourGuideController.getSkillById);
+router.delete('/skills/:id',tourGuideController.deleteSkillById);
+router.post('/skills',tourGuideController.addSkill);
 module.exports = router;
