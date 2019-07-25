@@ -10,6 +10,8 @@ router.put('/:id', tourGuideController.editTourGuide);
 router.get('/',checkAuth,tourGuideController.getTourGuide);
 router.get('/getById',checkAuth,tourGuideController.getTourGuideById);
 router.delete('/:id',tourGuideController.deleteGuide);
+// change password
+router.post('/password',checkAuth,tourGuideController.changePassword)
 // get status guide
 router.get('/status/:stat',tourGuideController.getStatus);
 //-------------------- Skills ----------------------

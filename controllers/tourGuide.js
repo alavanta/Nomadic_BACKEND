@@ -137,7 +137,9 @@ exports.getTourGuide = (req, res) => {
 
 exports.getTourGuideById = (req, res) => {
   let query = `SELECT * FROM guide WHERE id = ${req.userData.id}`;
+  console.log(query);
   connection.query(query, (error, rows, fields) => {
+    console.log('punya tourGuide ', rows);
     if (error) {
       return res.send(error);
     } else {
@@ -291,6 +293,44 @@ exports.addSkill = (req, res) => {
         data: {
           id_guide: id_guide,
           skill: skill
+        }
+      });
+    }
+  });
+};
+
+exports.changePassword = (req, res) => {
+  let id = req.userData.id;
+  let oldPassword = req.body.oldPassword;
+  let oldPassEncrypt = encrypt(oldPassword);
+  let password = req.body.newPassword;
+  let passEncrypt = encrypt(password);
+
+  const qOldpass = `SELECT guide_password from guide WHERE id ='${id}'`;
+  connection.query(qOldpass, (err, row, field) => {
+    console.log(row);
+    if (oldPassEncrypt != row[0].guide_password) {
+      console.log('error');
+      res.status(404).send({
+        status: 404,
+        message: 'Error, password not valid.'
+      });
+    } else {
+      const query = `UPDATE guide SET guide_password='${passEncrypt}' WHERE id=${id}`;
+
+      connection.query(query, (error, rows, field) => {
+        if (error) {
+          return res.send(error);
+        } else {
+          connection.query(
+            `SELECT * FROM guide WHERE id = ${req.userData.id}`,
+            (err, rowss, field) => {
+              res.status(201).send({
+                status: 201,
+                data: rowss[0]
+              });
+            }
+          );
         }
       });
     }

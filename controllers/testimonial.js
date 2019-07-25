@@ -16,7 +16,8 @@ exports.showTestimonial = (req, res) => {
     if (rows) {
       res.send({
         data: JSON.parse(rows)
-      });
+      })
+      client.del(regisKey);
     } else {
       connection.query(query, (error, rows, field) => {
         if (error) {
