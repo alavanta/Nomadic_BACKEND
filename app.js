@@ -13,6 +13,8 @@ const packagesRouter = require('./routes/packages');
 const transactionRouter = require('./routes/transaction');
 const forgotPasswordRouter = require('./routes/forgotPassword');
 const bookingRouter = require('./routes/booking');
+const tourGuideRouter = require('./routes/tourGuide');
+const testimonialRouter = require('./routes/testimonial');
 
 const app = express();
 
@@ -28,6 +30,8 @@ app.use('/packages', packagesRouter);
 app.use('/booking', bookingRouter);
 app.use('/reset_password', forgotPasswordRouter);
 app.use('/transaction', transactionRouter);
+app.use('/tourGuide',tourGuideRouter);
+app.use('/testimonial',testimonialRouter);
 
 app.listen(process.env.PORT || 3000);
 console.log(3000);

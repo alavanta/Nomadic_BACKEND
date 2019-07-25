@@ -23,8 +23,8 @@ function decrypt(text) {
   return dec;
 }
 
-exports.createUsers = (req, res) => {
-  const { name, email, phone, address, gender } = req.body;
+exports.createTourGuide = (req, res) => {
+  const { name, email, phone, photo, address, gender, age } = req.body;
   const password = encrypt(req.body.password);
 
   if (!name) {
@@ -37,7 +37,7 @@ exports.createUsers = (req, res) => {
     response.falseRequirement(res, 'address');
   } else {
     connection.query(
-      `SELECT * from users where email=\'${email}\' LIMIT 1`,
+      `SELECT * from guide where guide_email=\'${email}\' LIMIT 1`,
       (error, rowss, field) => {
         if (error) {
           console.log(error);
@@ -47,14 +47,14 @@ exports.createUsers = (req, res) => {
           } else {
             connection.query(
               //insert
-              `Insert into users set name=?, password=?, email=?, phone=?, address=?, gender=?`,
-              [name, password, email, phone, address, gender],
+              `Insert into guide set guide_name=?, guide_email=?, guide_password=?, guide_phone=?, guide_photo=?,guide_address=?, guide_gender=?, guide_age=?`,
+              [name, email, password, phone, photo, address, gender, age],
               (error, rowsss, field) => {
                 if (error) {
                   console.log(error);
                 } else {
                   connection.query(
-                    `SELECT *  FROM users ORDER BY id DESC LIMIT 1`,
+                    `SELECT *  FROM guide ORDER BY id DESC LIMIT 1`,
                     (error, data, field) => {
                       if (error) {
                         console.log(error);
@@ -74,15 +74,13 @@ exports.createUsers = (req, res) => {
 };
 
 exports.login = (req, res) => {
-  const email = req.body.email || '';
+  const email = req.body.email;
   const password = req.body.password || '0';
+  console.log(email)
   let encrypted = encrypt(password);
-  const query = `SELECT * FROM users WHERE email='${email}' AND password='${encrypted}'`;
-  
-  console.log(query) 
+  const query = `SELECT * FROM guide WHERE guide_email='${email}' AND guide_password='${encrypted}'`;
   connection.query(query, (error, rows, field) => {
     if (error) {
-      
       console.log(query)
       return response.loginFailed(res);
     } else {
@@ -92,7 +90,6 @@ exports.login = (req, res) => {
         });
         return response.loginSuccess(res, rows, token);
       } else {
-        
         console.log(query)
         return response.loginFailed(res);
       }
@@ -100,88 +97,36 @@ exports.login = (req, res) => {
   });
 };
 
-//  Forgot password
-exports.forgotPassword = (req, res) => {
-  const email = req.body.email;
-  if (email === '') {
-    res.json('Email required !');
-  } else {
-    connection.query(
-      `SELECT * from users WHERE email = ${email}`,
-      (error, rows, field) => {
-        if (rows === '') {
-          console.log('Email not in database');
-          res.json('Email nothing in db ');
-        } else {
-          const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-              user: 'maslownr@gmail.com',
-              pass: '085959933411'
-            }
-          });
+exports.getTourGuide = (req, res) => {
 
-          const mailOptions = {
-            from: 'maslownr@gmail.com',
-            to: `${users.email}`,
-            subject: 'Link to reset password',
-            text:
-              'Ingin melihat passwordmu ? klik link berikut !\n' +
-              `https://elevenia.herokuapp.com/users/resetPassword/${users._id}`
-          };
-
-          transporter.sendMail(mailOptions, function(err, res) {
-            if (err) {
-              console.error('something wrong ', err);
-            }
-          });
-        }
-        return res.status(200).json({
-          status: 200,
-          message: `Data has been sended to email ${users.email}`
-        });
-      }
-    );
-  }
-};
-
-exports.changePassword = (req, res) => {
-  let id = req.params.id;
-  let password = req.body.password;
-  let passEncrypt = encrypt(password);
-  console.log(password);
-  const query = `UPDATE users SET password='${passEncrypt}' WHERE id=${id}`;
-  connection.query(query, (error, rows, field) => {
-    if (error) {
-      return res.send(error);
-    } else {
-      if (rows.affectedRows === 1) {
-        res.status(200).json({
-          status: 201,
-          data: rows
-        });
-      } else {
-        res.status(404).json({
-          status: 404,
-          data: 'Data not found !'
-        });
-      }
-    }
-  });
-};
-
-exports.getUsersById = (req, res) => {
-  const id = req.userData.id;
-  const query = `SELECT * FROM users WHERE id = ${id}`;
+  let query = `SELECT * FROM guide`;
   connection.query(query, (error, rows, fields) => {
     if (error) {
       return res.send(error);
     } else {
       if (rows !== '') {
-        res.status(200).json({
-          status: 201,
-          data: rows
-        });
+        let q = `SELECT skill FROM skills LEFT JOIN guide ON guide.id = skills.id_guide`;
+        connection.query(q, (err, row, field) => {
+          var rv = {};
+          for (var i = 0; i < row.length; ++i){
+            rv[i] = row[i];
+          }
+          if (err) {
+            res.status(401).json({
+              status: 404,
+              data: 'Data not found'
+            })
+          } else {
+            // let { id, guide_name, guide_email, guide_password, guide_phone, guide_photo, guide_address, guide_gender, guide_age } = rows[0];
+            res.status(200).json({
+              status: 201,
+              data: {
+                data: rows,
+                skills: rv
+              }
+            });
+          }
+        })
       } else {
         res.status(401).json({
           status: 404,
@@ -192,14 +137,62 @@ exports.getUsersById = (req, res) => {
   });
 };
 
-exports.editUsers = (req, res) => {
+exports.getTourGuideById = (req, res) => {
+  const id = req.params.id;
+  let query = `SELECT * FROM guide`;
+  connection.query(query, (error, rows, fields) => {
+    if (error) {
+      return res.send(error);
+    } else {
+      if (rows !== '') {
+        let q = `SELECT skill FROM skills WHERE id_guide = ${id} `;
+        connection.query(q, (err, row, field) => {
+          if (err) {
+            res.status(401).json({
+              status: 404,
+              data: 'Data not found'
+            })
+          } else {
+            let element = req.params.id - 1;
+            console.log(element)
+            let { id, guide_name, guide_email, guide_password, guide_phone, guide_photo, guide_address, guide_gender, guide_age } = rows[element];
+            res.status(200).json({
+              status: 201,
+              data: {
+                id: id,
+                guide_name: guide_name,
+                guide_email: guide_email,
+                guide_password: guide_password,
+                guide_phone: guide_phone,
+                guide_photo: guide_photo,
+                guide_address: guide_address,
+                guide_gender: guide_gender,
+                guide_age: guide_age,
+                skills: row
+              }
+            });
+          }
+        })
+      } else {
+        res.status(401).json({
+          status: 404,
+          data: 'Data not found !'
+        });
+      }
+    }
+  });
+};
+
+exports.editTourGuide = (req, res) => {
   let id = req.params.id;
-  let { name, password, email, address, gender } = req.body;
-  let phone = parseInt(req.body.phone);
+  const { name, phone, address, gender, age } = req.body;
+  const password = encrypt(req.body.password);
   let passEncrypt = encrypt(password);
-  const query = `UPDATE users SET name='${name}', password='${passEncrypt}', email='${email}', address='${address}', phone='${phone}',gender='${gender}' WHERE id=${id}`;
+  const query = `UPDATE guide SET guide_name='${name}' ,guide_password='${passEncrypt}', guide_address='${address}', guide_phone='${phone}',guide_gender='${gender}', guide_age='${age}' WHERE id=${id}`;
+  console.log(query)
   connection.query(query, (error, rows, field) => {
     if (error) {
+      console.log(query)
       return res.send(error);
     } else {
       if (rows.affectedRows === 1) {
@@ -208,6 +201,7 @@ exports.editUsers = (req, res) => {
           data: rows
         });
       } else {
+        console.log(query)
         res.status(404).json({
           status: 404,
           data: 'Data not found !'
