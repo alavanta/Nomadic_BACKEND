@@ -25,7 +25,6 @@ exports.showPackages = (req, res) => {
       res.send({
         data: JSON.parse(rows)
       });
-      client.del(regisKey);
     } else {
       connection.query(query, (error, rows, field) => {
         if (error) {
