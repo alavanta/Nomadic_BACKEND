@@ -31,6 +31,28 @@ exports.getBookingByUserId = (req, res) => {
   });
 };
 
+exports.getBookingByGuide = (req, res) => {
+  const id = req.userData.id;
+  console.log(id)
+  const query = `SELECT * FROM booking LEFT JOIN packages ON booking.id_packages = packages.id WHERE booking.id_guide=${id} LIMIT 10`;
+  connection.query(query, (error, rows, field) => {
+    if (error) {
+      console.log(error);
+    } else {
+      if (!id) {
+        return response.falseRequirement(res, 'user');
+      } else {
+        if (rows != '') {
+          return response.success(res, rows);
+        } else {
+          console.log('gamasuk')
+          return response.notFound(res);
+        }
+      }
+    }
+  });
+};
+
 exports.createBookingByUserId = (req, res) => {
   console.log(req.query);
 

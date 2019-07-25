@@ -74,19 +74,16 @@ exports.createUsers = (req, res) => {
 };
 
 exports.login = (req, res) => {
-  console.log(req.body);
+ 
   const email = req.body.email || '';
   const password = req.body.password || '0';
   let encrypted = encrypt(password);
-  console.log(encrypted);
-
+ 
   const query = `SELECT * FROM users WHERE email='${email}' AND password='${encrypted}'`;
-  
-  console.log(query) 
+
   connection.query(query, (error, rows, field) => {
     if (error) {
-      
-      console.log(query)
+
       return response.loginFailed(res);
     } else {
       if (rows != '') {
@@ -95,7 +92,6 @@ exports.login = (req, res) => {
         });
         return response.loginSuccess(res, rows, token);
       } else {
-        console.log(req.body);
         return response.loginFailed(res);
       }
     }
@@ -132,7 +128,7 @@ exports.forgotPassword = (req, res) => {
               `https://elevenia.herokuapp.com/users/resetPassword/${users._id}`
           };
 
-          transporter.sendMail(mailOptions, function(err, res) {
+          transporter.sendMail(mailOptions, function (err, res) {
             if (err) {
               console.error('something wrong ', err);
             }
@@ -148,28 +144,43 @@ exports.forgotPassword = (req, res) => {
 };
 
 exports.changePassword = (req, res) => {
-  let id = req.params.id;
-  let password = req.body.password;
+  let id = req.userData.id;
+  let oldPassword = req.body.oldPassword;
+  let oldPassEncrypt = encrypt(oldPassword);
+  let password = req.body.newPassword;
   let passEncrypt = encrypt(password);
-  console.log(password);
-  const query = `UPDATE users SET password='${passEncrypt}' WHERE id=${id}`;
-  connection.query(query, (error, rows, field) => {
-    if (error) {
-      return res.send(error);
-    } else {
-      if (rows.affectedRows === 1) {
-        res.status(200).json({
-          status: 201,
-          data: rows
-        });
-      } else {
-        res.status(404).json({
-          status: 404,
-          data: 'Data not found !'
-        });
-      }
+
+  const qOldpass = `SELECT password from users WHERE id ='${id}'`;
+  connection.query(qOldpass, (err, row, field) => {
+    console.log(row)
+    if (oldPassEncrypt != row[0].password) {
+      console.log('error')
+      res.status(404).send({
+        status: 404,
+        message : 'Error, password not valid.'
+      })
+    }else {
+      const query = `UPDATE users SET password='${passEncrypt}' WHERE id=${id}`;
+      
+      connection.query(query, (error, rows, field) => {
+        if (error) {
+          return res.send(error);
+        } else {
+          if (rows.affectedRows === 1) {
+            res.status(200).json({
+              status: 201,
+              data: rows
+            });
+          } else {
+            res.status(404).json({
+              status: 404,
+              data: 'Data not found !'
+            });
+          }
+        }
+      });
     }
-  });
+  })
 };
 
 exports.getUsersById = (req, res) => {

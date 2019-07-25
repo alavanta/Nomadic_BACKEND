@@ -24,7 +24,7 @@ function decrypt(text) {
 }
 
 exports.createTourGuide = (req, res) => {
-  const { name, email, phone, photo, address, gender, age, skill,status } = req.body;
+  const { name, email, phone, photo, address, gender, age, skill, status } = req.body;
   const password = encrypt(req.body.password);
 
   if (!name) {
@@ -116,14 +116,16 @@ exports.getTourGuide = (req, res) => {
 
 exports.getTourGuideById = (req, res) => {
   let query = `SELECT * FROM guide WHERE id = ${req.userData.id}`;
+  console.log(query)
   connection.query(query, (error, rows, fields) => {
+    console.log('punya tourGuide ', rows)
     if (error) {
       return res.send(error);
     } else {
       if (rows != '') {
         res.status(200).json({
           status: 201,
-          data:rows[0]
+          data: rows[0]
         });
       } else {
         res.status(401).json({
@@ -173,7 +175,7 @@ exports.deleteGuide = (req, res) => {
       if (rows.affectedRows != 0) {
         res.status(201).json({
           status: 201,
-          id_guide : parseInt(idGuide),
+          id_guide: parseInt(idGuide),
           message: 'Guide deleted successfully.'
         })
       } else {
@@ -186,7 +188,7 @@ exports.deleteGuide = (req, res) => {
   })
 }
 
-exports.getStatus = (req,res)=>{
+exports.getStatus = (req, res) => {
   const stat = req.params.stat;
   let query = `SELECT * FROM guide WHERE status = ${stat}`;
   connection.query(query, (error, rows, field) => {
@@ -240,7 +242,7 @@ exports.deleteSkillById = (req, res) => {
       if (rows.affectedRows != 0) {
         res.status(201).json({
           status: 201,
-          id_skill : parseInt(idSkill),
+          id_skill: parseInt(idSkill),
           message: 'Skill deleted successfully.'
         })
       } else {
@@ -257,22 +259,58 @@ exports.addSkill = (req, res) => {
   let { id_guide, skill } = req.body;
   let query = `INSERT INTO skills SET id_guide = ${id_guide}, skill = '${skill}'`
 
-  connection.query(query,(error,rows,field) => {
-    if(error) {
+  connection.query(query, (error, rows, field) => {
+    if (error) {
       res.status(401).json({
         status: 401,
-        message : error
+        message: error
       })
     }
     else {
       res.status(201).json({
         status: 201,
         message: 'Data added successfully',
-        data : {
-          id_guide : id_guide,
-          skill : skill
+        data: {
+          id_guide: id_guide,
+          skill: skill
         }
       })
     }
   })
 }
+
+exports.changePassword = (req, res) => {
+  let id = req.userData.id;
+  let oldPassword = req.body.oldPassword;
+  let oldPassEncrypt = encrypt(oldPassword);
+  let password = req.body.newPassword;
+  let passEncrypt = encrypt(password);
+
+  const qOldpass = `SELECT guide_password from guide WHERE id ='${id}'`;
+  connection.query(qOldpass, (err, row, field) => {
+    console.log(row)
+    if (oldPassEncrypt != row[0].guide_password) {
+      console.log('error')
+      res.status(404).send({
+        status: 404,
+        message: 'Error, password not valid.'
+      })
+    } else {
+      const query = `UPDATE guide SET guide_password='${passEncrypt}' WHERE id=${id}`;
+
+      connection.query(query, (error, rows, field) => {
+        if (error) {
+          return res.send(error);
+        } else {
+            connection.query(`SELECT * FROM guide WHERE id = ${req.userData.id}`,(err,rowss,field)=>{
+              res.status(201).send({
+                status:201,
+                data:rowss[0]
+              })
+            })
+        }
+      });
+    }
+  })
+};
+

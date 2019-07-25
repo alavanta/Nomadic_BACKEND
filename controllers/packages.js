@@ -22,7 +22,8 @@ exports.showPackages = (req, res) => {
     if (rows) {
       res.send({
         data: JSON.parse(rows)
-      });
+      })
+      client.del(regisKey);
     } else {
       connection.query(query, (error, rows, field) => {
         if (error) {
@@ -56,6 +57,7 @@ exports.showPackagesById = (req, res) => {
       res.status(200).send({
         data: JSON.parse(rows)
       })
+      client.del(regisKey)
     } else {
       connection.query(fetchDestination, (error, data) => {
         if (error) {
@@ -69,7 +71,8 @@ exports.showPackagesById = (req, res) => {
                 if (rows != '') {
                   client.setex(regisKey, 3600, JSON.stringify(rows));
                   res.status(200).send({
-                    data: rows
+                    data: rows,
+                    data
                   });
                 } else {
                   res.status(404).json({
@@ -104,6 +107,7 @@ exports.destinationById = (req, res) => {
       res.send({
         data: JSON.parse(rows)
       })
+      client.del(regisKey);
     }else {
       connection.query(query, (error, rows, field) => {
         if (error) {
