@@ -4,7 +4,7 @@ require('dotenv/config');
 const conn = require('../config/connect');
 const nodemailer = require('nodemailer');
 const email = 'normadictravelapp@gmail.com';
-const emailPassword = 'arkademyjogjacamp';
+const emailPassword = 'Arkademybootcamp!0';
 
 const mcache = require('memory-cache');
 const crypto = require('crypto');
