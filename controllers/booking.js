@@ -13,7 +13,7 @@ function getTime() {
 
 exports.getBookingByUserId = (req, res) => {
   const id = req.userData.id;
-  const query = `SELECT * FROM booking LEFT JOIN packages ON booking.id_packages = packages.id WHERE booking.id_user=${id} LIMIT 10`;
+  const query = `SELECT booking.id booking_id, booking.booking_date, booking.booking_passenger, booking.id_guide, booking.id_packages, booking.id_user, booking.isDone, packages.included_fasilities, packages.nonincluded_fasilities, packages.package_city, packages.package_description, packages.package_image, packages.package_name, packages.package_price FROM booking LEFT JOIN packages ON booking.id_packages = packages.id WHERE booking.id_user=${id}`;
   connection.query(query, (error, rows, field) => {
     if (error) {
       console.log(error);
@@ -33,8 +33,8 @@ exports.getBookingByUserId = (req, res) => {
 
 exports.getBookingByGuide = (req, res) => {
   const id = req.userData.id;
-  console.log(id)
-  const query = `SELECT * FROM booking LEFT JOIN packages ON booking.id_packages = packages.id WHERE booking.id_guide=${id} LIMIT 10`;
+  console.log(id);
+  const query = `SELECT booking.id booking_id, booking.booking_date, booking.booking_passenger, booking.id_guide, booking.id_packages, booking.id_user, booking.isDone, packages.included_fasilities, packages.nonincluded_fasilities, packages.package_city, packages.package_description, packages.package_image, packages.package_name, packages.package_price FROM booking LEFT JOIN packages ON booking.id_packages = packages.id WHERE booking.id_guide=${id}`;
   connection.query(query, (error, rows, field) => {
     if (error) {
       console.log(error);
@@ -45,7 +45,7 @@ exports.getBookingByGuide = (req, res) => {
         if (rows != '') {
           return response.success(res, rows);
         } else {
-          console.log('gamasuk')
+          console.log('gamasuk');
           return response.notFound(res);
         }
       }
@@ -133,6 +133,7 @@ exports.deleteBookingByUserId = (req, res) => {
 
 exports.getBookingById = (req, res) => {
   const id = req.params.id;
+  console.log(id);
   const query = `SELECT * FROM booking LEFT JOIN packages ON booking.id_packages = packages.id LEFT JOIN guide ON booking.id_guide = guide.id WHERE booking.id = ${id} LIMIT 10 `;
   connection.query(query, (error, rows, field) => {
     if (error) {
@@ -141,6 +142,8 @@ exports.getBookingById = (req, res) => {
       if (!id) {
         return response.falseRequirement(res, 'user');
       } else {
+        console.log(rows);
+
         if (rows != '') {
           return response.success(res, rows);
         } else {

@@ -5,6 +5,8 @@ const sendNotification = require('../middleware/sendNotification');
 const moment = require('moment');
 
 exports.stripe = async function(req, res) {
+  console.log(req.body);
+
   let number = req.body.number;
   number = number.replace(/\s+/gi, '');
   const month = req.body.month;
@@ -70,7 +72,7 @@ exports.stripe = async function(req, res) {
         console.log('SUKESE');
         console.log(idUser);
 
-        const sql = `INSERT INTO booking SET id_user=${idUser}, id_packages=${packageId}, booking_date='${date}', booking_passenger=${passanger}, id_guide=${guideId}`;
+        const sql = `INSERT INTO booking SET id_user=${idUser}, id_packages=${packageId}, booking_date='${date}', booking_passenger=${passanger}, id_guide=${guideId}, isDone=0`;
         connection.query(sql, function(err, row, field) {
           if (err) {
             console.log(err);

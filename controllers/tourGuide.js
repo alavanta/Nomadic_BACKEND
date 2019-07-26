@@ -136,7 +136,9 @@ exports.getTourGuide = (req, res) => {
 };
 
 exports.getTourGuideById = (req, res) => {
-  let query = `SELECT * FROM guide WHERE id = ${req.userData.id}`;
+  console.log(req.userData);
+
+  let query = `SELECT * FROM guide WHERE id=${req.userData.id}`;
   console.log(query);
   connection.query(query, (error, rows, fields) => {
     console.log('punya tourGuide ', rows);
