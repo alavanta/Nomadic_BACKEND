@@ -3,8 +3,8 @@ require('dotenv/config');
 
 const conn = require('../config/connect');
 const nodemailer = require('nodemailer');
-const email = process.env.EMAIL || 'maslownr@gmail.com';
-const emailPassword = process.env.EMAIL_PASSWORD || '085959933411';
+const email = 'maslownr@gmail.com';
+const emailPassword = '085959933411';
 
 const mcache = require('memory-cache');
 const crypto = require('crypto');
